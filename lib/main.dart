@@ -6,17 +6,6 @@ import 'package:flutter_test_app/features/screen_size/screen_size.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Display windowSize =
-      WidgetsBinding.instance.platformDispatcher.views.first.display;
-
-  print("first windowSize ${windowSize.size}");
-  print("logical size : ${windowSize.size / windowSize.devicePixelRatio}");
-  // SystemChrome.setApplicationSwitcherDescription(
-  //   const ApplicationSwitcherDescription(
-  //     label: 'Flutter Poc App',
-  //     primaryColor: 0xffffffff,
-  //   ),
-  // );
   Widget runAppWidget = const Dummy();
   switch (1) {
     case 1:
