@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_test_app/features/bottom_modal_sheet/bttom_sheet_animatables/bottom_sheet_icon.dart';
 
 class BottomModalHome extends StatelessWidget {
   const BottomModalHome({super.key});
@@ -62,7 +63,7 @@ class ShowBottomModal extends StatelessWidget with WidgetsBindingObserver {
             ),
           ),
         ),
-        Positioned(bottom: 0, child: const CustomBottomSheet())
+        const CustomBottomSheet()
       ],
     );
   }
@@ -76,48 +77,75 @@ class CustomBottomSheet extends StatefulWidget {
 }
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
+  final _draggableScrollableController = DraggableScrollableController();
+  final minHeightPercentage = 0.1;
+  final maxHeightPercentage = 0.5;
+
   Widget containerForBottomSheet(Color? color) => Container(
-        width: double.infinity,
         height: 100,
         color: color ?? Colors.red,
       );
+  final forceDown = false;
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (builder) {
-      return Align(
-        heightFactor: 1,
-        child: Container(
-          width: View.of(context).display.size.width,
-          height: 200,
-          color: Colors.red,
-        ),
-      );
-    });
+    final mediaQueryData = MediaQuery.of(context);
+    // print("minHeight :  ${mediaQueryData.size.height * 0.2},maxHeight: "
+    //     "${mediaQueryData.size.height * 0.5}");
+    // return Builder(builder: (builder) {
+    //   return Align(
+    //     heightFactor: 1,
+    //     child: Container(
+    //       width: View.of(context).display.size.width,
+    //       height: 200,
+    //       color: Colors.red,
+    //     ),
+    //   );
+    // });
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.2,
-      maxChildSize: 0.5,
+      controller: _draggableScrollableController,
+      initialChildSize: minHeightPercentage,
+      minChildSize: minHeightPercentage,
+      maxChildSize: maxHeightPercentage,
       builder: (context, scrollController) {
-        return SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            children: [
-              containerForBottomSheet(Colors.red),
-            ],
+        // print("draggable context : ${context.size?.height?? 0}");
+        return NotificationListener<OverscrollIndicatorNotification>(
+          onNotification: (overscroll) {
+            overscroll.disallowIndicator();
+            return true;
+          },
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (_draggableScrollableController.size >= 0.49) {
+                      _draggableScrollableController.animateTo(minHeightPercentage,
+                          duration: Duration(seconds: 2), curve: Curves.ease);
+                    } else {
+                      _draggableScrollableController.animateTo(maxHeightPercentage,
+                          duration: Duration(seconds: 2), curve: Curves.ease);
+                    }
+                  },
+                  child: Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 100,
+                  ),
+                ),
+                BottomSheetIconAnimation(
+                  parentScrollController: _draggableScrollableController,
+                  minHeight: minHeightPercentage,
+                  maxHeight: maxHeightPercentage,
+                ),
+                containerForBottomSheet(Colors.red),
+              ],
+            ),
           ),
         );
       },
     );
   }
 }
-
-// class MeasureSize extends SingleChildRenderObjectWidget{
-//   const MeasureSize({super.key});
-//
-//   @override
-//   RenderObject createRenderObject(BuildContext context) {
-//
-//   }
-//
-// }
